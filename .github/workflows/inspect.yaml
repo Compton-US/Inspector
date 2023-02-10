@@ -22,7 +22,8 @@ jobs:
           python --version
           pip --version
       - name: Setup Graphviz
-        uses: ts-graphviz/setup-graphviz@v1
+        run: |
+          apk add --update --no-cache graphviz
       - name: Install dependencies.
         run: |
           pip install -r requirements.txt
