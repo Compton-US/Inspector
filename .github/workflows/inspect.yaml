@@ -25,6 +25,9 @@ jobs:
         run: |
           pip install -r requirements.txt
       - name: Execute script.
+        env:
+          REPOS: ${{ secrets.REPOS }}
+          WORKFLOW_GITHUB_TOKEN: ${{ secrets.WORKFLOW_GITHUB_TOKEN }}
         run: |
           python app.py
       - name: Save Results

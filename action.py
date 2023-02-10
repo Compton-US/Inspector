@@ -13,7 +13,7 @@ class Action(object):
     def login(self):
         if os.path.isfile('.env'):
             load_dotenv()
-        token = os.environ.get('ACTIONPLAN_GITHUB_TOKEN')
+        token = os.environ.get('WORKFLOW_GITHUB_TOKEN')
         if token == None:
             print("Error: Check that you have the WORKFLOW_GITHUB_TOKEN variable set.\n")
             sys.exit(1)
