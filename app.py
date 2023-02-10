@@ -293,7 +293,7 @@ for repo_item in repos:
 
     # dot or fdp
     # img = g._repr_mimebundle_(include=['image/png'])  
-    g.render(directory='./', filename=f"Workflows-{repo.name}", engine="dot")
+    g.render(filename=f"Workflows-{repo.name}", engine="dot")
     output.append(f"\n\n---\n\n![Graphical Representation of Workflow](Workflows-{repo.name}.svg)")
     # g.view()
 

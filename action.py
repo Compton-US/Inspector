@@ -11,8 +11,7 @@ class Action(object):
         self.builder(org,repo,project,toc,pdf,output)
 
     def login(self):
-        if os.path.isfile('.env'):
-            load_dotenv()
+        load_dotenv()
         token = os.environ.get('WORKFLOW_GITHUB_TOKEN')
         if token == None:
             print("Error: Check that you have the WORKFLOW_GITHUB_TOKEN variable set.\n")
@@ -20,8 +19,7 @@ class Action(object):
         self.ghConn = Github(token)
 
     def get_repos(self):
-        if os.path.isfile('.env'):
-            load_dotenv()
+        load_dotenv()
         repos = os.environ.get('REPOS')
 
         if repos == None:
