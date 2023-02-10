@@ -1,7 +1,6 @@
 from github import Github
 from dotenv import load_dotenv
 import os, sys, pypandoc
-from IPython import display
 import base64
 
 class Action(object):
