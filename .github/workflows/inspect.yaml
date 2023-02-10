@@ -21,6 +21,8 @@ jobs:
           ls -ltra
           python --version
           pip --version
+      - name: Setup Graphviz
+        uses: ts-graphviz/setup-graphviz@v1
       - name: Install dependencies.
         run: |
           pip install -r requirements.txt
