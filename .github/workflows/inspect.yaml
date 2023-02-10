@@ -23,7 +23,7 @@ jobs:
           pip --version
       - name: Setup Graphviz
         run: |
-          apk add --update --no-cache graphviz
+          sudo apt install python-pydot python-pydot-ng graphviz
       - name: Install dependencies.
         run: |
           pip install -r requirements.txt
