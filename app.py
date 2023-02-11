@@ -1,13 +1,10 @@
 #%% Load Libraries
 from action import Action
 from pathlib import Path
-from graphviz import Digraph,ENGINES
+
 import requests
 import yaml
 import re
-
-    
-
 
 #%% Connect
 act = Action()
@@ -24,11 +21,15 @@ print(repos)
 for repo_item in repos:
     output = []
     diagram = {"nodes": [],"edges": []}
-    omit_diagram = {"nodes": [],"edges": []}
 
     print(f"Loading {repo_item}")
     repo = gh.get_repo(repo_item)
-    files = repo.get_contents('.github/workflows')
+
+    try:
+        files = repo.get_contents('.github/workflows')
+    except:
+        print(f"WARNING!!! {repo_item} does not appear to have workflows.")
+        files = []
 
     # Get file contents
     workflow_files = []
@@ -163,6 +164,7 @@ for repo_item in repos:
                                 diagram['nodes'].append({
                                     "id": current_job_step, 
                                     "label": f"Step (Unnamed)", 
+                                    "belongs_to": current_workflow,
                                     "type":"step", 
                                     "file_type":step_cnt
                                     })
@@ -229,83 +231,22 @@ for repo_item in repos:
                 previous_job = current_job
 
 
+        # Create Graph
+        colors = {
+            "default":  '#cccccc',
+            "action":   '#a6e6fc',
+            "workflow": "#c3fca6",
+            "job":      "#FFC355",
+            "step":     "#FBE29d",
+            "script":   "#f89f9b",
+            "line":     "#002481"
+        }
 
-    #%% Diagram
-    graph_name = 'workflow_diagram'
-    g = Digraph(graph_name, filename=graph_name, format='svg')
-    g.attr(scale='2', label='Workflow Diagram', fontsize='12')
+        file_prefix = f"Workflows-{repo.name}"
+        result = act.make_diagram(diagram, colors=colors, filename_prefix=file_prefix)
 
+        output.append(result)
 
-
-    colors = {
-        "default":  '#cccccc',
-        "action":   '#a6e6fc',
-        "workflow": "#c3fca6",
-        "job":      "#FFC355",
-        "step":     "#FBE29d",
-        "script":   "#eb6761"
-    }
-
-    g.attr('node', shape='box', style='filled')
-
-    all_sub_ed = []
-    for node in diagram['nodes']:
-        fillcolor=colors['default']
-        if node['type'] in colors:
-            fillcolor = colors[node['type']]
-
-        if 'belongs_to' in node:
-            #** GROUP THE WORKFLOW ITEMS   
-            with g.subgraph(name=f"cluster_{node['belongs_to']}") as job_group:
-
-                sub_ed = []
-                for edge in diagram['edges']:
-                    if 'belongs_to' in edge and edge['belongs_to'] == node['belongs_to']:
-                        entry = (edge['source'], edge['target'])
-                        if entry not in all_sub_ed:
-                            sub_ed.append(entry)
-                            all_sub_ed.append(entry)
-                job_group.attr(label="Workflow")
-                
-                job_group.node(node['id'], label=f"<{act.make_table(node)}>", fillcolor=fillcolor)
-                job_group.edges(sub_ed)
-            
-        else:
-            g.node(node['id'], label=f"<{act.make_table(node)}>", fillcolor=fillcolor)
-
-    ed=[]
-    for edge in diagram['edges']:
-        if 'belongs_to' not in edge:
-            entry = (edge['source'], edge['target'])
-            if entry not in ed:
-                ed.append((edge['source'], edge['target']))
-
-
-    g.edges(ed)
-
-    #
-    # for engine in sorted(ENGINES):
-    #     # if engine in ['fdp']:
-    #     print(engine)
-    #     g.engine = engine
-    #     display.display(g)
-    #     print()
-
-    # dot or fdp
-    # img = g._repr_mimebundle_(include=['image/png'])  
-    g.render(filename=f"Workflows-{repo.name}", engine="dot")
-    output.append(f"\n\n---\n\n![Graphical Representation of Workflow](Workflows-{repo.name}.svg)")
-    # g.view()
-
-    #
-    g = None
-
-
-    # Output
-    # img = g._repr_mimebundle_(include=['image/png'])  
-    # b64image = img['image/png']
-    # output.append(f"![Graphical Representation of Workflow][1]")
-    # output.append(f"[1]: data:image/png;base64,{b64image}")
-    Path(f"Workflows-{repo.name}.md").write_text("\n".join(output))
+        Path(f"{file_prefix}.md").write_text("\n".join(output))
 
 # %%
