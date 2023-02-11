@@ -164,6 +164,7 @@ for repo_item in repos:
                                 diagram['nodes'].append({
                                     "id": current_job_step, 
                                     "label": f"Step (Unnamed)", 
+                                    "belongs_to": current_workflow,
                                     "type":"step", 
                                     "file_type":step_cnt
                                     })
@@ -237,7 +238,8 @@ for repo_item in repos:
             "workflow": "#c3fca6",
             "job":      "#FFC355",
             "step":     "#FBE29d",
-            "script":   "#eb6761"
+            "script":   "#f89f9b",
+            "line":     "#002481"
         }
 
         file_prefix = f"Workflows-{repo.name}"
@@ -246,6 +248,5 @@ for repo_item in repos:
         output.append(result)
 
         Path(f"{file_prefix}.md").write_text("\n".join(output))
-    
 
 # %%

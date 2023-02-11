@@ -1,6 +1,9 @@
 from github import Github
 from dotenv import load_dotenv
 from graphviz import Digraph,ENGINES
+import matplotlib.colors as mc
+import colorsys
+import numpy as np
 
 import os, sys, pypandoc
 import base64
@@ -50,24 +53,55 @@ class Action(object):
 
         return result   
 
-    def make_table(self, node):
+    def make_table(self, node, width=300):
         return f"""
-        <TABLE>
-            <TR><td><b>{node['type'].upper()}</b> <i>{node['file_type']}</i></td></TR>
-            <TR><td>{node['label']}</td></TR>
+        <TABLE width='{width}'>
+            <TR><td width='{width}'><b>{node['type'].upper()}</b> <i>{node['file_type']}</i></td></TR>
+            <TR><td width='{width}'>{node['label']}</td></TR>
         </TABLE>
         """
+
+    def make_width(self,input,factor=5,min=50):
+        width = len(input) * factor
+
+        if width < min:
+            return min
+            
+        return width
+
 
     def b64(self, string):
         return str(base64.b64encode(string.encode('ascii')))
 
-    def make_diagram(self, nodes_and_edges, title='Workflow Diagram', colors={'default':'#cccccc'}, filename_prefix='Workflow'):
-        g = Digraph(format='svg')
-        g.attr(scale='2', label=title, fontsize='12')
+    def make_color(self, color, amount=.30):
+        # Based on : https://gist.github.com/technic/8bf3932ad7539b762a05da11c0093ed5
+        try:
+            c = mc.cnames[color]
+        except:
+            c = color
+        c = np.array(colorsys.rgb_to_hls(*mc.to_rgb(c)))
+        (r, g, b) = colorsys.hls_to_rgb(c[0],amount,c[2])
 
-        g.attr('node', shape='box', style='filled')
+        return mc.to_hex([r, g, b])
+
+    def make_diagram(self, nodes_and_edges, title='Workflow Diagram', colors={'default':'#cccccc'}, filename_prefix='Workflow', box_width=50):
+        g = Digraph(format='svg')
+        g.attr(scale='2', label=title, fontsize='16')
+
+        g.attr('node', shape='box', style='filled', fontsize='16')
 
         all_sub_ed = []
+
+        workflow_nodes_width = box_width
+        other_nodes_width = box_width
+        for node in nodes_and_edges['nodes']:
+            current_width = self.make_width(node['label'])
+            if ('belongs_to' in node or node['type'] == 'workflow') and current_width > workflow_nodes_width:
+                workflow_nodes_width = current_width
+            elif 'belongs_to' not in node and current_width > other_nodes_width:
+                other_nodes_width = current_width
+
+
         for node in nodes_and_edges['nodes']:
             fillcolor=colors['default']
             if node['type'] in colors:
@@ -84,13 +118,28 @@ class Action(object):
                             if entry not in all_sub_ed:
                                 sub_ed.append(entry)
                                 all_sub_ed.append(entry)
-                    job_group.attr(label="Workflow")
-                    
-                    job_group.node(node['id'], label=f"<{self.make_table(node)}>", fillcolor=fillcolor)
+                    job_group.attr(
+                        label="Workflow", 
+                        penwidth="4", 
+                        color=self.make_color(colors['workflow'],.4),
+                        margin="50.0,50.0"
+                        )
+
+                    custom_color = self.make_color(colors[node['type']])
+                    job_group.node(node['id'], 
+                        label=f"<{self.make_table(node, workflow_nodes_width)}>",
+                        fillcolor=fillcolor, 
+                        penwidth="4",
+                        color=self.make_color(fillcolor,.4))
+                    job_group.attr('edge',arrowsize="1",weight="2",color=custom_color, penwidth="4")
                     job_group.edges(sub_ed)
                 
             else:
-                g.node(node['id'], label=f"<{self.make_table(node)}>", fillcolor=fillcolor)
+                node_width = other_nodes_width
+                if node['type'] == 'workflow':
+                    node_width = workflow_nodes_width
+
+                g.node(node['id'], label=f"<{self.make_table(node, node_width)}>", fillcolor=fillcolor, penwidth="4",color=self.make_color(fillcolor,.4))
 
         ed=[]
         for edge in nodes_and_edges['edges']:
@@ -99,7 +148,7 @@ class Action(object):
                 if entry not in ed:
                     ed.append((edge['source'], edge['target']))
 
-
+        g.attr('edge',arrowsize="2",weight="4",color=colors['line'], penwidth="3")
         g.edges(ed)
 
         # dot or fdp
