@@ -231,22 +231,22 @@ for repo_item in repos:
                 previous_job = current_job
 
 
-        # Create Graph
-        colors = {
-            "default":  '#cccccc',
-            "action":   '#a6e6fc',
-            "workflow": "#c3fca6",
-            "job":      "#FFC355",
-            "step":     "#FBE29d",
-            "script":   "#f89f9b",
-            "line":     "#002481"
-        }
+    # Create Graph
+    colors = {
+        "default":  '#cccccc',
+        "action":   '#a6e6fc',
+        "workflow": "#c3fca6",
+        "job":      "#FFC355",
+        "step":     "#FBE29d",
+        "script":   "#f89f9b",
+        "line":     "#002481"
+    }
 
-        file_prefix = f"Workflows-{repo.name}"
-        result = act.make_diagram(diagram, colors=colors, filename_prefix=file_prefix)
+    file_prefix = f"Workflows-{repo.name}"
+    result = act.make_diagram(diagram, colors=colors, filename_prefix=file_prefix)
 
-        output.append(result)
+    output.append(result)
 
-        Path(f"{file_prefix}.md").write_text("\n".join(output))
+    Path(f"{file_prefix}.md").write_text("\n".join(output))
 
 # %%
