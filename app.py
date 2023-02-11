@@ -21,11 +21,15 @@ print(repos)
 for repo_item in repos:
     output = []
     diagram = {"nodes": [],"edges": []}
-    omit_diagram = {"nodes": [],"edges": []}
 
     print(f"Loading {repo_item}")
     repo = gh.get_repo(repo_item)
-    files = repo.get_contents('.github/workflows')
+
+    try:
+        files = repo.get_contents('.github/workflows')
+    except:
+        print(f"WARNING!!! {repo_item} does not appear to have workflows.")
+        files = []
 
     # Get file contents
     workflow_files = []
