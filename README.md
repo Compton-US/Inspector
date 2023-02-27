@@ -13,10 +13,8 @@ python app.py
 
 To use the GitHub workflow, two environment variables are required:
 
-```
 - REPOS - A list of repositories separated by a comma.  A single repository is acceptable.
 - WORKFLOW_GITHUB_TOKEN - This is a developer token that should have read access to the repositories in the list.
-```
 
 For example:
 
