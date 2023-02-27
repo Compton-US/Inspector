@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request: {}
 jobs:
   execute:
@@ -37,4 +38,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: content
-          path: Workflows-*.*
+          path: |
+            *.workflows.md
+            *.graph.svg

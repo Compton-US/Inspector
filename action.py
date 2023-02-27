@@ -1,6 +1,8 @@
 from github import Github
 from dotenv import load_dotenv
 from graphviz import Digraph,ENGINES
+from nested_lookup import nested_lookup
+
 import matplotlib.colors as mc
 import colorsys
 import numpy as np
@@ -84,7 +86,7 @@ class Action(object):
 
         return mc.to_hex([r, g, b])
 
-    def make_diagram(self, nodes_and_edges, title='Workflow Diagram', colors={'default':'#cccccc'}, filename_prefix='Workflow', box_width=50):
+    def make_diagram(self, nodes_and_edges, title='Workflow Diagram', colors={'default':'#cccccc'}, filename_prefix='Overview', box_width=50):
         g = Digraph(format='svg')
         g.attr(scale='2', label=title, fontsize='16')
 
@@ -152,7 +154,30 @@ class Action(object):
         g.edges(ed)
 
         # dot or fdp
-        g.render(filename=filename_prefix, engine="dot")
+        g.render(filename=f"{filename_prefix}", engine="dot")
         g = None
 
+        return self.diagram_markdown(title, filename_prefix)
+    
+    def make_workflow_diagram(self, workflow, diagram, colors={'default':'#cccccc'}, filename_prefix='Workflow'):
+        workflow_diagram = {"nodes": [],"edges": []}
+        workflow_diagram['nodes'].append(workflow)
+
+        for edge in diagram['edges']:
+            if 'belongs_to' in edge and edge['belongs_to'] == workflow['id']:
+                workflow_diagram['edges'].append(edge)
+            elif 'used_by' in edge and edge['used_by'] == workflow['id']:
+                workflow_diagram['edges'].append(edge)
+
+        identifiers = nested_lookup('source',workflow_diagram['edges']) + nested_lookup('target',workflow_diagram['edges'])
+
+        for node in diagram['nodes']:
+            if node['id'] in identifiers:
+                workflow_diagram['nodes'].append(node)
+
+        result = self.make_diagram(workflow_diagram, colors=colors, filename_prefix=filename_prefix)
+        return result
+    
+
+    def diagram_markdown(self, title, filename_prefix):
         return f"\n\n---\n\n![Graphical Representation of {title}]({filename_prefix}.svg)"
