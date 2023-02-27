@@ -6,6 +6,7 @@ import requests
 import yaml
 import re
 
+
 #%% Connect
 act = Action()
 act.login()
@@ -17,13 +18,27 @@ gh = act.ghConn
 repos = act.get_repos().split(',')
 print(repos)
 
+# Create Graph
+colors = {
+    "default":  '#cccccc',
+    "action":   '#a6e6fc',
+    "workflow": "#c3fca6",
+    "job":      "#FFC355",
+    "step":     "#FBE29d",
+    "script":   "#f89f9b",
+    "line":     "#002481"
+}
+
+
 #%% Generate
 for repo_item in repos:
     output = []
     diagram = {"nodes": [],"edges": []}
+    workflows = []
 
     print(f"Loading {repo_item}")
     repo = gh.get_repo(repo_item)
+    file_prefix = f"{repo.name}"
 
     try:
         files = repo.get_contents('.github/workflows')
@@ -37,9 +52,13 @@ for repo_item in repos:
         print(f"Loading {file}")
         content = requests.get(file.download_url)
         workflow_files.append({'name': file.name, 'content': content.text })
-
+    
     # Print outline
     output.append(f"# Repository: {repo.name}")
+    output.append(f"## Repository Overview Diagram")
+    output.append(act.diagram_markdown("Workflow Overview", f"{file_prefix}-Overview.graph"))
+
+    output.append(f"\n\n# Workflows:")
 
     for file in workflow_files:
         if str(file['name']).endswith('.yml'):
@@ -52,6 +71,13 @@ for repo_item in repos:
                 "type":"workflow", 
                 "file_type":"yaml"
                 })
+            
+            workflows.append({
+                "id": act.b64(file['name']), 
+                "label": file['name'], 
+                "type":"workflow", 
+                "file_type":"yaml"
+                })
 
     for file in workflow_files:
         if str(file['name']).endswith('.yml'):
@@ -59,7 +85,8 @@ for repo_item in repos:
 
             ## * WORKFLOW ################################
             current_workflow = act.b64(file['name'])
-            output.append(f"\n### Workflow: {yfile['name']} ({file['name']})\n")
+            output.append(f"\n## Workflow: {yfile['name']} ({file['name']})\n")
+
             previous_job = None
             for job in yfile['jobs']:
 
@@ -125,6 +152,7 @@ for repo_item in repos:
                     diagram['edges'].append({
                         "source": current_job,
                         "target": current_job_uses,
+                        "used_by": current_workflow,
                         "rel": "uses"
                         })                
 
@@ -198,6 +226,7 @@ for repo_item in repos:
                             diagram['edges'].append({
                                 "source": current_job_step,
                                 "target": current_job_step_uses,
+                                "used_by": current_workflow,
                                 "rel": "Uses"
                                 }) 
 
@@ -226,27 +255,22 @@ for repo_item in repos:
                                 diagram['edges'].append({
                                     "source": current_job_step,
                                     "target": current_job_step_script,
+                                    "used_by": current_workflow,
                                     "rel": "Uses"
                                     }) 
                 previous_job = current_job
+                
+        output.append(f"\n### Workflow Overview")
+        output.append(act.diagram_markdown("Workflow", f"{file_prefix}-{str(file['name']).replace('.yml','')}.graph"))
 
+    # Diagrams
+    act.make_diagram(diagram, colors=colors, filename_prefix=f"{file_prefix}-Overview.graph")
 
-    # Create Graph
-    colors = {
-        "default":  '#cccccc',
-        "action":   '#a6e6fc',
-        "workflow": "#c3fca6",
-        "job":      "#FFC355",
-        "step":     "#FBE29d",
-        "script":   "#f89f9b",
-        "line":     "#002481"
-    }
+    for workflow in workflows:
+        act.make_workflow_diagram(workflow, diagram, colors=colors, filename_prefix=f"{file_prefix}-{str(workflow['label']).replace('.yml','')}.graph")
 
-    file_prefix = f"Workflows-{repo.name}"
-    result = act.make_diagram(diagram, colors=colors, filename_prefix=file_prefix)
+    # Save Markdown result
+    Path(f"{file_prefix}.workflows.md").write_text("\n".join(output))
 
-    output.append(result)
-
-    Path(f"{file_prefix}.md").write_text("\n".join(output))
 
 # %%
