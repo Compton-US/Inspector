@@ -13,19 +13,20 @@ on:
         required: false
   workflow_dispatch:
     branches:
-    # - main
-    # - develop
-    - "feature-*"
+      # - main
+      # - develop
+      - "feature-*"
     inputs:
       commit_resources:
         description: 'Commit generated resources'
         required: true
         default: false
         type: boolean
-  # push:
-  #   branches:
-  #     - main
-  #     - develop
+  push:
+    branches:
+      - main
+      - develop
+      - "feature-*"
   pull_request: {}
 jobs:
   execute:
