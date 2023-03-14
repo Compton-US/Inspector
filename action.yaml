@@ -46,5 +46,5 @@ runs:
       with:
         name: content
         path: |
-          *.graph.svg
-          *.workflows.md
+          output/*.graph.svg
+          output/*.workflows.md
