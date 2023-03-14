@@ -29,6 +29,6 @@ These can be set in the repository to execute the action, or for local use, the 
 Tagging:
 
 ```
-git tag -a -m "Testing Release" v0.1
+git tag -a -m "Testing Release" v0.5
 git push --follow-tags
 ```
