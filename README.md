@@ -24,3 +24,11 @@ REPOS=usnistgov/OSCAL,usnistgov/oscal-content,usnistgov/liboscal-java,usnistgov/
 ```
 
 These can be set in the repository to execute the action, or for local use, the value can be placed into a `.env` file.  See `sample.env`.
+
+
+Tagging:
+
+```
+git tag -a -m "Testing Release" v0.1
+git push --follow-tags
+```
