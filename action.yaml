@@ -38,7 +38,7 @@ runs:
     - name: Execute script.
       shell: bash
       run: |
-        python app.py
+        python ${{ github.action_path }}/app.py
         ls -ltra
 
     - name: Save the results.
