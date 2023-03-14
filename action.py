@@ -20,11 +20,12 @@ class Action(object):
 
     def login(self):
         load_dotenv()
-        token = os.environ.get('WORKFLOW_GITHUB_TOKEN')
-        if token == None:
-            print("Error: Check that you have the WORKFLOW_GITHUB_TOKEN variable set.\n")
-            sys.exit(1)
-        self.ghConn = Github(token)
+        if 'WORKFLOW_GITHUB_TOKEN' in token:
+            token = os.environ.get('WORKFLOW_GITHUB_TOKEN')
+            if token == None:
+                print("Error: Check that you have the WORKFLOW_GITHUB_TOKEN variable set.\n")
+                sys.exit(1)
+            self.ghConn = Github(token)
 
     def get_repos(self):
         load_dotenv()
