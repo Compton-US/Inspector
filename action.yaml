@@ -1,0 +1,50 @@
+name: Create CI Documentation (Dispatch)
+description: 'Analyze the GitHub workflows in a repository, and produce documentation and diagrams.'
+author: Chris Compton <chris.compton@nist.gov>
+
+inputs:
+  repository:
+    description: 'Name of repository [org/repo] or [user/repo]'
+    required: true
+
+runs:
+  using: composite
+  steps:
+
+    - name: Check out repository code.
+      uses: actions/checkout@v3
+
+    - name: Set up Python.
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Set up Graphviz.
+      shell: bash
+      run: |
+        sudo apt install graphviz
+
+    - name: Log the environment.
+      shell: bash
+      run: |
+        ls -ltra
+        python --version
+        pip --version
+
+    - name: Install any dependencies.
+      shell: bash
+      run: pip install -r ${{ github.action_path }}/requirements.txt
+      
+    - name: Execute script.
+      shell: bash
+      run: |
+        python app.py
+        ls -ltra
+
+    - name: Save the results.
+      uses: actions/upload-artifact@v3
+      with:
+        name: content
+        path: |
+          *.graph.svg
+          *.workflows.md
