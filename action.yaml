@@ -2,11 +2,6 @@ name: Create CI Documentation (Dispatch)
 description: 'Analyze the GitHub workflows in a repository, and produce documentation and diagrams.'
 author: Chris Compton <chris.compton@nist.gov>
 
-inputs:
-  repository:
-    description: 'Name of repository [org/repo] or [user/repo]'
-    required: true
-
 runs:
   using: composite
   steps:
