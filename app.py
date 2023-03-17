@@ -44,7 +44,7 @@ for file in files:
 output.append(f"## Repository Overview Diagram")
 output.append(act.diagram_markdown("Workflow Overview", f"Overview.graph"))
 
-output.append(f"\n\n# Workflows:")
+output.append(f"\n\n# Table of Contents:")
 
 for file in workflow_files:
     if str(file['name']).endswith('.yml') or str(file['name']).endswith('.yaml'):
@@ -64,6 +64,12 @@ for file in workflow_files:
             "type":"workflow", 
             "file_type":"yaml"
             })
+        
+        markdown_link = str(file['name']).replace(" ","-").replace("(","").replace(")","")
+        output.append(f"\n- [{file['name']}](#{markdown_link})")
+
+
+output.append(f"\n\n# Workflows:")
 
 for file in workflow_files:
     if str(file['name']).endswith('.yml') or str(file['name']).endswith('.yaml'):
