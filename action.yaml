@@ -2,6 +2,12 @@ name: Create CI Documentation (Dispatch)
 description: 'Analyze the GitHub workflows in a repository, and produce documentation and diagrams.'
 author: Chris Compton <chris.compton@nist.gov>
 
+inputs:
+  artifact_name:
+    description: 'The name to use for the result artifact.  Defaults to content.'
+    required: false
+    default: 'content'
+
 runs:
   using: composite
   steps:
@@ -39,7 +45,7 @@ runs:
     - name: Save the results.
       uses: actions/upload-artifact@v3
       with:
-        name: content
+        name: ${{ inputs.artifact_name }}
         path: |
           output/*.graph.svg
           output/*.workflows.md
