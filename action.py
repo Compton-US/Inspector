@@ -14,6 +14,19 @@ import base64
 class Action(object):
     ghConn = None
 
+    def get_prefix(self):
+        load_dotenv()
+        prefix = "Project"
+        path = "output"
+
+        if 'file_prefix' in os.environ:
+            prefix = os.environ.get('file_prefix')
+
+        if 'output_path' in os.environ:
+            path = os.environ.get('output_path')
+
+        return f"{path}/{prefix}"       
+
     def generate(self,org,repo,project,toc=False,pdf=False,output='.'):
         self.login()
         self.builder(org,repo,project,toc,pdf,output)

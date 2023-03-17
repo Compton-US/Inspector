@@ -11,6 +11,10 @@ inputs:
     description: 'The path to use inside artifact, and will be the location of extraction in your repository.  Defaults to output.'
     required: false
     default: 'output'
+  file_prefix:
+    description: 'The prefix to apply to all created files.  Defaults to Project.'
+    required: false
+    default: 'Project'
 
 runs:
   using: composite
@@ -42,6 +46,9 @@ runs:
       
     - name: Execute script.
       shell: bash
+      env:
+        output_path: ${{ inputs.output_path }}
+        file_prefix: ${{ inputs.file_prefix }}
       run: |
         python ${{ github.action_path }}/app.py
         ls -ltra
@@ -51,5 +58,5 @@ runs:
       with:
         name: ${{ inputs.artifact_name }}
         path: |
-          ${{ inputs.output_path }}/*.graph.svg
-          ${{ inputs.output_path }}/*.workflows.md
+          ${{ inputs.output_path }}/${{ inputs.file_prefix }}*.graph.svg
+          ${{ inputs.output_path }}/${{ inputs.file_prefix }}*.workflows.md

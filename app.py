@@ -23,7 +23,8 @@ colors = {
 output = []
 diagram = {"nodes": [],"edges": []}
 workflows = []
-file_prefix = f"output/Project"
+
+file_prefix = act.get_prefix()
 
 try:
     files = list(Path('.github/workflows').iterdir())
