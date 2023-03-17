@@ -256,6 +256,7 @@ for file in workflow_files:
             
     output.append(f"\n### Workflow Overview")
     output.append(act.diagram_markdown("Workflow", f"{str(file['name']).replace('.yml','').replace('.yaml','')}.graph"))
+    output.append(f"\n\n[Top](#table-of-contents)\n\n")
 
 # Diagrams
 act.make_diagram(diagram, colors=colors, filename=f"Overview.graph")
