@@ -178,7 +178,7 @@ class Action(object):
         g.edges(ed)
 
         # dot or fdp
-        g.render(filename=f"{self.get_path_and_prefix}{filename}", engine="dot")
+        g.render(filename=f"{self.get_path_and_prefix()}{filename}", engine="dot")
         g = None
 
         return self.diagram_markdown(title, filename)
@@ -204,5 +204,5 @@ class Action(object):
     
 
     def diagram_markdown(self, title, filename):
-        filename = f"{self.get_prefix}{filename}"
+        filename = f"{self.get_prefix()}{filename}"
         return f"\n\n---\n\n![Graphical Representation of {title}]({filename}.svg)"
