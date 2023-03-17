@@ -65,7 +65,7 @@ for file in workflow_files:
             "file_type":"yaml"
             })
         
-        markdown_link = str(file['name']).replace(" ","-").replace("(","").replace(")","")
+        markdown_link = str(f"Workflow {yaml_file['name']} {file['name']}").lower().replace(" ","-").replace(".","")
         output.append(f"\n- [{file['name']}](#{markdown_link})")
 
 
