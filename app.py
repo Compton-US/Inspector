@@ -258,7 +258,7 @@ for workflow in workflows:
     act.make_workflow_diagram(workflow, diagram, colors=colors, filename=f"{str(workflow['label']).replace('.yml','').replace('.yaml','')}.graph")
 
 # Save Markdown result
-Path(f"{act.get_path_and_prefix}.workflows.md").write_text("\n".join(output))
+Path(f"{act.get_path_and_prefix()}.workflows.md").write_text("\n".join(output))
 
 
 # %%
