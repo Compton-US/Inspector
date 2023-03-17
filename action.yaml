@@ -7,6 +7,10 @@ inputs:
     description: 'The name to use for the result artifact.  Defaults to content.'
     required: false
     default: 'content'
+  output_path:
+    description: 'The path to use inside artifact, and will be the location of extraction in your repository.  Defaults to output.'
+    required: false
+    default: 'output'
 
 runs:
   using: composite
@@ -47,5 +51,5 @@ runs:
       with:
         name: ${{ inputs.artifact_name }}
         path: |
-          output/*.graph.svg
-          output/*.workflows.md
+          ${{ inputs.output_path }}/*.graph.svg
+          ${{ inputs.output_path }}/*.workflows.md
