@@ -24,8 +24,6 @@ output = []
 diagram = {"nodes": [],"edges": []}
 workflows = []
 
-file_prefix = act.get_prefix()
-
 try:
     files = list(Path('.github/workflows').iterdir())
 except:
@@ -44,7 +42,7 @@ for file in files:
 
 # Print outline
 output.append(f"## Repository Overview Diagram")
-output.append(act.diagram_markdown("Workflow Overview", f"{file_prefix}-Overview.graph"))
+output.append(act.diagram_markdown("Workflow Overview", f"Overview.graph"))
 
 output.append(f"\n\n# Workflows:")
 
@@ -251,16 +249,16 @@ for file in workflow_files:
             previous_job = current_job
             
     output.append(f"\n### Workflow Overview")
-    output.append(act.diagram_markdown("Workflow", f"{file_prefix}-{str(file['name']).replace('.yml','').replace('.yaml','')}.graph"))
+    output.append(act.diagram_markdown("Workflow", f"{str(file['name']).replace('.yml','').replace('.yaml','')}.graph"))
 
 # Diagrams
-act.make_diagram(diagram, colors=colors, filename_prefix=f"{file_prefix}-Overview.graph")
+act.make_diagram(diagram, colors=colors, filename=f"Overview.graph")
 
 for workflow in workflows:
-    act.make_workflow_diagram(workflow, diagram, colors=colors, filename_prefix=f"{file_prefix}-{str(workflow['label']).replace('.yml','').replace('.yaml','')}.graph")
+    act.make_workflow_diagram(workflow, diagram, colors=colors, filename=f"{str(workflow['label']).replace('.yml','').replace('.yaml','')}.graph")
 
 # Save Markdown result
-Path(f"{file_prefix}.workflows.md").write_text("\n".join(output))
+Path(f"{act.get_path_and_prefix}.workflows.md").write_text("\n".join(output))
 
 
 # %%

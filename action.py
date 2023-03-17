@@ -17,6 +17,16 @@ class Action(object):
     def get_prefix(self):
         load_dotenv()
         prefix = "Project"
+
+        if 'file_prefix' in os.environ:
+            prefix = os.environ.get('file_prefix')
+
+        return f"{prefix}"       
+
+
+    def get_path_and_prefix(self):
+        load_dotenv()
+        prefix = "Project"
         path = "output"
 
         if 'file_prefix' in os.environ:
@@ -100,7 +110,7 @@ class Action(object):
 
         return mc.to_hex([r, g, b])
 
-    def make_diagram(self, nodes_and_edges, title='Workflow Diagram', colors={'default':'#cccccc'}, filename_prefix='Overview', box_width=50):
+    def make_diagram(self, nodes_and_edges, title='Workflow Diagram', colors={'default':'#cccccc'}, filename='Overview', box_width=50):
         g = Digraph(format='svg')
         g.attr(scale='2', label=title, fontsize='16')
 
@@ -168,12 +178,12 @@ class Action(object):
         g.edges(ed)
 
         # dot or fdp
-        g.render(filename=f"{filename_prefix}", engine="dot")
+        g.render(filename=f"{self.get_path_and_prefix}{filename}", engine="dot")
         g = None
 
-        return self.diagram_markdown(title, filename_prefix)
+        return self.diagram_markdown(title, filename)
     
-    def make_workflow_diagram(self, workflow, diagram, colors={'default':'#cccccc'}, filename_prefix='Workflow'):
+    def make_workflow_diagram(self, workflow, diagram, colors={'default':'#cccccc'}, filename='Workflow'):
         workflow_diagram = {"nodes": [],"edges": []}
         workflow_diagram['nodes'].append(workflow)
 
@@ -189,9 +199,10 @@ class Action(object):
             if node['id'] in identifiers:
                 workflow_diagram['nodes'].append(node)
 
-        result = self.make_diagram(workflow_diagram, colors=colors, filename_prefix=filename_prefix)
+        result = self.make_diagram(workflow_diagram, colors=colors, filename=filename)
         return result
     
 
-    def diagram_markdown(self, title, filename_prefix):
-        return f"\n\n---\n\n![Graphical Representation of {title}]({filename_prefix}.svg)"
+    def diagram_markdown(self, title, filename):
+        filename = f"{self.get_prefix}{filename}"
+        return f"\n\n---\n\n![Graphical Representation of {title}]({filename}.svg)"
