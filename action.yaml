@@ -15,6 +15,9 @@ inputs:
     description: 'The prefix to apply to all created files.  Defaults to Project.'
     required: false
     default: 'Project'
+  markdown_name:
+    description: 'The name of the markdown file.  Defaults to a combination of the prefix and other elements.'
+    required: false
 
 runs:
   using: composite
@@ -49,6 +52,7 @@ runs:
       env:
         output_path: ${{ inputs.output_path }}
         file_prefix: ${{ inputs.file_prefix }}
+        markdown_name: ${{ inputs.markdown_name }}
       run: |
         python ${{ github.action_path }}/app.py
         ls -ltra
@@ -59,4 +63,4 @@ runs:
         name: ${{ inputs.artifact_name }}
         path: |
           ${{ inputs.output_path }}/${{ inputs.file_prefix }}*.graph.svg
-          ${{ inputs.output_path }}/${{ inputs.file_prefix }}*.workflows.md
+          ${{ inputs.output_path }}/*.md
