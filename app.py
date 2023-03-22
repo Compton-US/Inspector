@@ -3,7 +3,7 @@ from action import Action
 from pathlib import Path
 
 import yaml
-import os, re
+import re
 
 act = Action()
 
@@ -23,19 +23,15 @@ colors = {
 output = []
 diagram = {"nodes": [],"edges": []}
 workflows = []
+files = act.get_workflows()
 
-try:
-    files = list(Path('.github/workflows').iterdir())
-except:
-    print(f"WARNING!!! Does not appear to have workflows.")
-    files = []
 
 # Get file contents
 workflow_files = []
 
 for file in files:
     dirpath = Path(file)
-    if dirpath.is_file:
+    if dirpath.is_file and (str(file).endswith(".yaml") or str(file).endswith(".yml")):
         print(f"Loading {file}")
         content = dirpath.read_text()
         workflow_files.append({'name': dirpath.name, 'content': content })
@@ -266,16 +262,8 @@ for workflow in workflows:
 
 # Save Markdown result
 
-if os.environ.get('markdown_name'):
-    mn = os.environ.get('markdown_name')
-    if mn.endswith(".md"):
-        output_file = mn
-    else:
-        output_file = f"{mn}.md"
-else:
-    output_file = f"{act.get_path_and_prefix()}.workflows.md"
+act.save_markdown(output)
 
-Path(output_file).write_text("\n".join(output))
 
 
 # %%

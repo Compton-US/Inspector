@@ -2,6 +2,7 @@ from github import Github
 from dotenv import load_dotenv
 from graphviz import Digraph,ENGINES
 from nested_lookup import nested_lookup
+from pathlib import Path
 
 import matplotlib.colors as mc
 import colorsys
@@ -11,54 +12,56 @@ import os, sys, pypandoc
 import base64
 
 
-class Action(object):
-    ghConn = None
+class Action:
+    def __init__(self):
+        load_dotenv()
+        self.ghConn = None
+
+        self.env = {
+           'file_prefix': "Project",
+           'artifact_name': "content",
+           'output_path': "output",
+           'markdown_name': "Project.workflows.md"
+        }
+        
+        if 'file_prefix' in os.environ.keys():
+            self.env['file_prefix'] = os.environ.get('file_prefix')
+
+        if 'artifact_name' in os.environ.keys():
+            self.env['artifact_name'] = os.environ.get('artifact_name')
+
+        if 'output_path' in os.environ.keys():
+            self.env['output_path'] = os.environ.get('output_path')
+
+        if 'markdown_name' in os.environ.keys():
+            mn = os.environ.get('markdown_name')
+            if mn.endswith(".md"):
+                self.env['markdown_name'] = mn
+            else:
+                self.env['markdown_name'] = f"{mn}.md"
+        else:
+            self.env['markdown_name'] = f"{self.env['file_prefix']}.workflows.md"
 
     def get_prefix(self):
-        load_dotenv()
-        prefix = "Project"
+        return f"{self.env['file_prefix']}"       
 
-        if 'file_prefix' in os.environ:
-            prefix = os.environ.get('file_prefix')
-
-        return f"{prefix}"       
-
+    def get_path(self):
+        return f"{self.env['output_path']}"
 
     def get_path_and_prefix(self):
-        load_dotenv()
-        prefix = "Project"
-        path = "output"
+        prefix = self.env['file_prefix']
+        path = self.env['output_path']
 
-        if 'file_prefix' in os.environ:
-            prefix = os.environ.get('file_prefix')
+        return f"{path}/{prefix}"     
 
-        if 'output_path' in os.environ:
-            path = os.environ.get('output_path')
+    def get_workflows(self, path='.github/workflows'):
+        try:
+            files = list(Path(path).iterdir())
+        except:
+            print(f"WARNING!!! Does not appear to have workflows.")
+            files = []
 
-        return f"{path}/{prefix}"       
-
-    def generate(self,org,repo,project,toc=False,pdf=False,output='.'):
-        self.login()
-        self.builder(org,repo,project,toc,pdf,output)
-
-    def login(self):
-        load_dotenv()
-        if 'WORKFLOW_GITHUB_TOKEN' in token:
-            token = os.environ.get('WORKFLOW_GITHUB_TOKEN')
-            if token == None:
-                print("Error: Check that you have the WORKFLOW_GITHUB_TOKEN variable set.\n")
-                sys.exit(1)
-            self.ghConn = Github(token)
-
-    def get_repos(self):
-        load_dotenv()
-        repos = os.environ.get('REPOS')
-
-        if repos == None:
-            print("Error: Check that you have the REPOS variable set.\n")
-            sys.exit(1)
-
-        return repos
+        return files  
     
     def clean_uses(self, input):
         if str(input).rfind('@') > 0:
@@ -202,6 +205,8 @@ class Action(object):
         result = self.make_diagram(workflow_diagram, colors=colors, filename=filename)
         return result
     
+    def save_markdown(self, output):
+        Path(f"{self.get_path()}/{self.env['markdown_name']}").write_text("\n".join(output))
 
     def diagram_markdown(self, title, filename):
         filename = f"{self.get_prefix()}{filename}"
