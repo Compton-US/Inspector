@@ -3,7 +3,7 @@ from action import Action
 from pathlib import Path
 
 import yaml
-import re
+import os, re
 
 act = Action()
 
@@ -265,7 +265,17 @@ for workflow in workflows:
     act.make_workflow_diagram(workflow, diagram, colors=colors, filename=f"{str(workflow['label']).replace('.yml','').replace('.yaml','')}.graph")
 
 # Save Markdown result
-Path(f"{act.get_path_and_prefix()}.workflows.md").write_text("\n".join(output))
+
+if os.environ.get('markdown_name'):
+    mn = os.environ.get('markdown_name')
+    if mn.endswith(".md"):
+        output_file = mn
+    else:
+        output_file = f"{mn}.md"
+else:
+    output_file = f"{act.get_path_and_prefix()}.workflows.md"
+
+Path(output_file).write_text("\n".join(output))
 
 
 # %%
