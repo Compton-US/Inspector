@@ -133,3 +133,4 @@ Workflows-*
 *.graph
 *.svg
 *.workflows.md
+.github/

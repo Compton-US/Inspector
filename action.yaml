@@ -39,7 +39,6 @@ runs:
     - name: Log the environment.
       shell: bash
       run: |
-        ls -ltra
         python --version
         pip --version
 
@@ -55,7 +54,7 @@ runs:
         markdown_name: ${{ inputs.markdown_name }}
       run: |
         python ${{ github.action_path }}/app.py
-        ls -ltra
+        ls -ltra ${{ inputs.output_path }}
 
     - name: Save the results.
       uses: actions/upload-artifact@v3
